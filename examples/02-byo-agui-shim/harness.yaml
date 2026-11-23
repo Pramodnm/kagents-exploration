@@ -1,0 +1,141 @@
+# Three BYO Harnesses, AgentTemplates, and Agents: one per persona.
+# Placeholders to fill before applying:
+#   <digest>            sha256 digest of the pushed image (docs/04, Step 4)
+#   <gateway-base-url>  OpenAI-compatible base URL (docs/03)
+#   <model-id>          model ID the gateway routes on
+# The gateway key is NOT here. The AgentTemplate references the gateway-model
+# ModelConfig (examples/03-models/modelconfig.yaml).
+apiVersion: api.kagent.dev/v1alpha3
+kind: Harness
+metadata:
+  name: agui-assistant-harness
+  namespace: kagent
+spec:
+  byo: {}
+  workload:
+    image: localhost:5001/agui-agents@<digest>
+    command: ["/app/shim"]
+  env:
+    - name: AGUI_PATH
+      value: assistant
+    - name: GATEWAY_BASE_URL
+      value: <gateway-base-url>
+    - name: GATEWAY_MODEL
+      value: <model-id>
+  substrate:
+    workerPoolRef:
+      name: kagent-default
+    snapshotPolicy:
+      location: s3://ate-snapshots/kagent/
+---
+apiVersion: api.kagent.dev/v1alpha3
+kind: AgentTemplate
+metadata:
+  name: agui-assistant-template
+  namespace: kagent
+spec:
+  description: AG-UI agent assistant from Microsoft Agent Framework Go.
+  modelConfig:
+    name: gateway-model
+---
+apiVersion: api.kagent.dev/v1alpha3
+kind: Agent
+metadata:
+  name: agui-assistant
+  namespace: kagent
+spec:
+  template:
+    ref:
+      name: agui-assistant-template
+  harnessRef:
+    name: agui-assistant-harness
+---
+apiVersion: api.kagent.dev/v1alpha3
+kind: Harness
+metadata:
+  name: agui-coder-harness
+  namespace: kagent
+spec:
+  byo: {}
+  workload:
+    image: localhost:5001/agui-agents@<digest>
+    command: ["/app/shim"]
+  env:
+    - name: AGUI_PATH
+      value: coder
+    - name: GATEWAY_BASE_URL
+      value: <gateway-base-url>
+    - name: GATEWAY_MODEL
+      value: <model-id>
+  substrate:
+    workerPoolRef:
+      name: kagent-default
+    snapshotPolicy:
+      location: s3://ate-snapshots/kagent/
+---
+apiVersion: api.kagent.dev/v1alpha3
+kind: AgentTemplate
+metadata:
+  name: agui-coder-template
+  namespace: kagent
+spec:
+  description: AG-UI agent coder from Microsoft Agent Framework Go.
+  modelConfig:
+    name: gateway-model
+---
+apiVersion: api.kagent.dev/v1alpha3
+kind: Agent
+metadata:
+  name: agui-coder
+  namespace: kagent
+spec:
+  template:
+    ref:
+      name: agui-coder-template
+  harnessRef:
+    name: agui-coder-harness
+---
+apiVersion: api.kagent.dev/v1alpha3
+kind: Harness
+metadata:
+  name: agui-tutor-harness
+  namespace: kagent
+spec:
+  byo: {}
+  workload:
+    image: localhost:5001/agui-agents@<digest>
+    command: ["/app/shim"]
+  env:
+    - name: AGUI_PATH
+      value: tutor
+    - name: GATEWAY_BASE_URL
+      value: <gateway-base-url>
+    - name: GATEWAY_MODEL
+      value: <model-id>
+  substrate:
+    workerPoolRef:
+      name: kagent-default
+    snapshotPolicy:
+      location: s3://ate-snapshots/kagent/
+---
+apiVersion: api.kagent.dev/v1alpha3
+kind: AgentTemplate
+metadata:
+  name: agui-tutor-template
+  namespace: kagent
+spec:
+  description: AG-UI agent tutor from Microsoft Agent Framework Go.
+  modelConfig:
+    name: gateway-model
+---
+apiVersion: api.kagent.dev/v1alpha3
+kind: Agent
+metadata:
+  name: agui-tutor
+  namespace: kagent
+spec:
+  template:
+    ref:
+      name: agui-tutor-template
+  harnessRef:
+    name: agui-tutor-harness

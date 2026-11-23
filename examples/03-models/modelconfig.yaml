@@ -1,0 +1,15 @@
+# ModelConfig for an OpenAI-compatible gateway.
+# Placeholders: <gateway-base-url> and <model-id>. The key lives in the
+# gateway-auth Secret (see docs/03-models.md, Step 3), never in this file.
+apiVersion: api.kagent.dev/v1alpha3
+kind: ModelConfig
+metadata:
+  name: gateway-model
+  namespace: kagent
+spec:
+  apiKeySecret: gateway-auth
+  apiKeySecretKey: GATEWAY_API_KEY
+  model: <model-id>
+  provider: OpenAI
+  openAI:
+    baseUrl: <gateway-base-url>

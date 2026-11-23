@@ -1,0 +1,15 @@
+flowchart TB
+    subgraph actor["Actor sandbox (one container)"]
+        shim["shim (kagent A2A side)<br/>:80 gRPC, :8081 /readyz"]
+        subgraph af["Agent Framework (Go)"]
+            ag1["AG-UI /assistant"]
+            ag2["AG-UI /coder"]
+            ag3["AG-UI /tutor"]
+        end
+        shim -->|HTTP POST SSE| ag1
+        shim -->|HTTP POST SSE| ag2
+        shim -->|HTTP POST SSE| ag3
+    end
+    caller["Caller (kagent CLI, A2A client)"] -->|A2A via gateway| shim
+    ag1 -->|Responses API| egress["atenet-egress<br/>credential injection"]
+    egress --> gw["Model gateway"]

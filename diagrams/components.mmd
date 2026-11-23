@@ -1,0 +1,25 @@
+flowchart TB
+    subgraph kagentns["namespace: kagent"]
+        ctrl["kagent-controller<br/>compiles revisions, gRPC :8083,<br/>A2A gateway, MCP /mcp"]
+        db[("kagent-postgresql")]
+        pool["WorkerPool kagent-default"]
+        tools["kagent-tools"]
+        ui["kagent-ui"]
+    end
+    subgraph ate["namespace: ate-system (Agent Substrate)"]
+        apisrv["ate-api-server x2"]
+        ctl["ate-controller"]
+        idp["ate-idp-server x2"]
+        atelet["atelet DaemonSet"]
+        router["atenet-router"]
+        egress["atenet-egress"]
+        cred["k8s-credential-provider"]
+        rustfs[("rustfs")]
+    end
+    ctrl --> apisrv
+    apisrv --> atelet
+    atelet --> pool
+    atelet --> rustfs
+    pool --> egress
+    ctrl --> db
+    router --> pool

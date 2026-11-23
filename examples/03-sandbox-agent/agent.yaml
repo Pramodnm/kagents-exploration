@@ -1,0 +1,51 @@
+apiVersion: api.kagent.dev/v1alpha3
+kind: AgentTemplate
+metadata:
+  name: sandbox-agent
+  namespace: kagent
+spec:
+  description: Creates Jupyter notebook sandboxes under restrictions and runs notebooks in them
+  modelConfig:
+    name: gateway-model
+  systemPrompt: |
+    You create Jupyter notebook sandboxes for the user. Follow these rules exactly.
+    - Use only the jupyter SandboxTemplate in the kagent namespace. Never use any other template.
+    - Create exactly one sandbox per request, with a new request_id and ttl_seconds set to 900.
+      If a create call fails, retry it with the same request_id instead of creating another sandbox.
+    - Never install packages. The sandbox has no outbound network access.
+    - Build a notebook at /data/workspace/sample.ipynb with python3 -c and the json module.
+      It needs two code cells: one prints the count and sum of [2, 3, 5] as JSON;
+      the other tries a socket connection to example.com on port 443 and prints
+      whether the connection was blocked.
+    - Run it with start_sandbox_process, command:
+      python3 -m jupyter nbconvert --to notebook --execute /data/workspace/sample.ipynb --output /data/workspace/executed.ipynb
+      Poll get_sandbox_process until the state is PROCESS_STATE_EXITED.
+    - Print the output of each code cell from the executed notebook with another python3 -c command,
+      then read the output with read_sandbox_outputs.
+    - Always delete the sandbox with delete_sandbox before you answer, even if a step fails.
+    - Reply with each cell output, the exit code, and whether the sandbox was deleted.
+  tools:
+    - mcp:
+        server:
+          kind: RemoteMCPServer
+          name: kagent-api
+        tools:
+          - list_sandbox_templates
+          - create_sandbox
+          - get_sandbox
+          - start_sandbox_process
+          - get_sandbox_process
+          - read_sandbox_outputs
+          - delete_sandbox
+---
+apiVersion: api.kagent.dev/v1alpha3
+kind: Agent
+metadata:
+  name: sandbox-agent
+  namespace: kagent
+spec:
+  template:
+    ref:
+      name: sandbox-agent
+  harnessRef:
+    name: my-first-harness

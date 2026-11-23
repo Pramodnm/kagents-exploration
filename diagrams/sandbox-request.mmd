@@ -1,0 +1,14 @@
+sequenceDiagram
+    participant U as User
+    participant A as sandbox-agent (kagent Session)
+    participant M as kagent-api MCP server
+    participant S as Sandbox (jupyter template)
+    U->>A: "Make a Jupyter notebook with sample Python..."
+    A->>M: create_sandbox (template=jupyter, ttl=900s, request_id)
+    M->>S: prepare and start from SandboxTemplate revision
+    A->>M: start_sandbox_process (python3 nbconvert --execute)
+    M->>S: run notebook
+    A->>M: get_sandbox_process (poll until EXITED)
+    A->>M: read_sandbox_outputs
+    A->>M: delete_sandbox
+    A-->>U: cell outputs, exit code, deleted = yes

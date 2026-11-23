@@ -1,0 +1,22 @@
+flowchart LR
+    subgraph VM["Ubuntu VM"]
+        subgraph kind["kind cluster: kagent"]
+            subgraph ate["ate-system (Agent Substrate)"]
+                api[ate-api-server]
+                atelet[atelet DaemonSet]
+                egress[atenet-egress]
+                rustfs[rustfs snapshots]
+            end
+            subgraph kns["kagent namespace"]
+                ctrl[kagent-controller :8083]
+                pool[WorkerPool kagent-default]
+                pg[(kagent-postgresql)]
+                ui[kagent-ui]
+            end
+        end
+    end
+    cli[kagent CLI] -->|port-forward 8083| ctrl
+    ctrl --> api
+    api --> atelet
+    atelet --> pool
+    ctrl --> pg

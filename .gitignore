@@ -1,0 +1,11 @@
+# Local build output and secrets. Never commit these.
+*.pem
+*.key
+*.id
+kagent-dryrun/
+kagent-values.yaml.local
+*.log
+/client
+/shim
+.env
+.env.*

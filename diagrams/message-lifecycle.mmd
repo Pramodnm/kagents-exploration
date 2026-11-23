@@ -1,0 +1,14 @@
+sequenceDiagram
+    participant C as Caller (CLI / A2A client)
+    participant G as kagent A2A gateway
+    participant S as Session service (Postgres)
+    participant A as Substrate (atelet)
+    participant X as Actor (sandbox)
+    C->>G: SendMessage (JSON-RPC or gRPC)
+    G->>S: resolve or create Session, reserve dispatch
+    G->>A: resume Actor if suspended
+    A->>X: restore snapshot onto a Worker with room
+    G->>X: forward message over A2A
+    X-->>G: task events (status, artifacts)
+    G-->>C: task (TASK_STATE_COMPLETED)
+    A->>X: checkpoint and suspend when idle

@@ -1,0 +1,8 @@
+flowchart LR
+    H[Harness<br/>how it runs] --> A[Agent]
+    T[AgentTemplate<br/>what it does] --> A
+    A -->|compiles to| AT[ActorTemplate<br/>Substrate, immutable]
+    AT -->|instantiated as| S[Session<br/>kagent gRPC + Postgres]
+    S -->|runs on| ACT[Actor<br/>in a sandbox]
+    ACT -->|scheduled onto| W[Worker<br/>pre-started pod]
+    W --- WP[WorkerPool]
